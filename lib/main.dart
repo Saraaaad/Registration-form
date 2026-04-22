@@ -37,9 +37,38 @@ class _MyFormScreenState extends State<MyFormScreen> {
   String? _country;
   double _age = 18;
   DateTime? _selectedDate;
+  String? _phoneNumber;
+  String? _address;
+  String? _city;
+  String? _bio;
+  String? _favoriteColor;
+  String? _educationLevel;
 
-  final List<String> _countries = ['Palestine', 'Jordan', 'Eygpt', 'Syrya', 'Iraq'];
+  final List<String> _countries = ['Palestine', 'Jordan', 'Egypt', 'Syria', 'Iraq'];
   final List<String> _genders = ['Male', 'Female'];
+  final List<String> _educationLevels = ['High School', 'Bachelor', 'Master', 'PhD', 'Other'];
+  final List<Color> _colorOptions = [
+    Colors.red,
+    Colors.green,
+    Colors.blue,
+    Colors.orange,
+    Colors.purple,
+    Colors.teal,
+  ];
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2050),
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
+  }
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
@@ -56,31 +85,33 @@ class _MyFormScreenState extends State<MyFormScreen> {
             country: _country,
             age: _age,
             selectedDate: _selectedDate,
+            phoneNumber: _phoneNumber,
+            address: _address,
+            city: _city,
+            bio: _bio,
+            favoriteColor: _favoriteColor,
+            educationLevel: _educationLevel,
           ),
         ),
       );
     }
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2050),
-    );
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-      });
-    }
+  String _getColorName(Color color) {
+    if (color == Colors.red) return 'Red';
+    if (color == Colors.green) return 'Green';
+    if (color == Colors.blue) return 'Blue';
+    if (color == Colors.orange) return 'Orange';
+    if (color == Colors.purple) return 'Purple';
+    if (color == Colors.teal) return 'Teal';
+    return 'Unknown';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Flutter Form Demo'),
+        title: const Text('Flutter Form Demo - Sara Dumaeri'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -106,6 +137,7 @@ class _MyFormScreenState extends State<MyFormScreen> {
                 },
               ),
               const SizedBox(height: 16.0),
+              
               TextFormField(
                 decoration: const InputDecoration(
                   labelText: 'Password',
@@ -127,6 +159,7 @@ class _MyFormScreenState extends State<MyFormScreen> {
                 },
               ),
               const SizedBox(height: 16.0),
+              
               TextFormField(
                 decoration: const InputDecoration(
                   labelText: 'Email',
@@ -148,6 +181,117 @@ class _MyFormScreenState extends State<MyFormScreen> {
                 },
               ),
               const SizedBox(height: 16.0),
+              
+              TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'Phone Number',
+                  hintText: 'Enter your phone number',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.phone,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your phone number';
+                  }
+                  if (value.length < 10) {
+                    return 'Please enter a valid phone number';
+                  }
+                  return null;
+                },
+                onSaved: (value) {
+                  _phoneNumber = value;
+                },
+              ),
+              const SizedBox(height: 16.0),
+              
+              TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'Address',
+                  hintText: 'Enter your street address',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 2,
+                onSaved: (value) {
+                  _address = value;
+                },
+              ),
+              const SizedBox(height: 16.0),
+              
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      decoration: const InputDecoration(
+                        labelText: 'City',
+                        hintText: 'Enter your city',
+                        border: OutlineInputBorder(),
+                      ),
+                      onSaved: (value) {
+                        _city = value;
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16.0),
+              
+              TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'Bio',
+                  hintText: 'Tell us about yourself',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
+                onSaved: (value) {
+                  _bio = value;
+                },
+              ),
+              const SizedBox(height: 16.0),
+              
+              const Text('Favorite Color:'),
+              const SizedBox(height: 8.0),
+              Wrap(
+                spacing: 8.0,
+                children: _colorOptions.map((color) {
+                  return FilterChip(
+                    label: Text(_getColorName(color)),
+                    selected: _favoriteColor == _getColorName(color),
+                    onSelected: (selected) {
+                      setState(() {
+                        _favoriteColor = selected ? _getColorName(color) : null;
+                      });
+                    },
+                    backgroundColor: color.withOpacity(0.3),
+                    selectedColor: color,
+                    checkmarkColor: Colors.white,
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 16.0),
+              
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                  labelText: 'Education Level',
+                  border: OutlineInputBorder(),
+                ),
+                value: _educationLevel,
+                items: _educationLevels.map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _educationLevel = newValue;
+                  });
+                },
+                onSaved: (value) {
+                  _educationLevel = value;
+                },
+              ),
+              const SizedBox(height: 16.0),
+              
               CheckboxListTile(
                 title: const Text('Remember me'),
                 value: _rememberMe,
@@ -158,7 +302,7 @@ class _MyFormScreenState extends State<MyFormScreen> {
                 },
                 controlAffinity: ListTileControlAffinity.leading,
               ),
-              const SizedBox(height: 16.0),
+              
               Row(
                 children: <Widget>[
                   const Text('Gender:'),
@@ -181,6 +325,7 @@ class _MyFormScreenState extends State<MyFormScreen> {
                 ],
               ),
               const SizedBox(height: 16.0),
+              
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
                   labelText: 'Country',
@@ -209,6 +354,7 @@ class _MyFormScreenState extends State<MyFormScreen> {
                 },
               ),
               const SizedBox(height: 16.0),
+              
               Row(
                 children: <Widget>[
                   const Text('Age: '),
@@ -230,6 +376,7 @@ class _MyFormScreenState extends State<MyFormScreen> {
                 ],
               ),
               const SizedBox(height: 16.0),
+              
               InkWell(
                 onTap: () => _selectDate(context),
                 child: InputDecorator(
@@ -251,6 +398,7 @@ class _MyFormScreenState extends State<MyFormScreen> {
                 ),
               ),
               const SizedBox(height: 24.0),
+              
               ElevatedButton(
                 onPressed: _submitForm,
                 child: const Text('Submit'),
@@ -262,4 +410,3 @@ class _MyFormScreenState extends State<MyFormScreen> {
     );
   }
 }
-
